@@ -1,14 +1,11 @@
 #!/usr/bin/env python3
 
-from itertools import count
 import os
-from ssl import create_default_context
-from unicodedata import name
-from attr import asdict
-import discord
+import codecs
 
-from datetime import date, datetime
-from dataclasses import dataclass
+from Modules._Datastructs import Message, Channel, date, datetime
+#from Modules._Objectgenerator import generate_object_list
+from Modules._JSONgenerator import generate_json, json
 from discord.ext import commands
 from dotenv import load_dotenv
 
@@ -18,31 +15,22 @@ DISCORD_API = os.environ.get("DISCORD_API")
 
 bot = commands.Bot(command_prefix='!')
 
-
-@dataclass
-class Message:
-    timestamp: datetime
-    author: str
-    content: str
-
-
-@dataclass
-class Channel:
-    channelname: str
-    messages: list[Message]
-
-
 messages_list = []
+
+channel_index = 3
+message_index = 3
 
 @bot.event
 async def on_ready():
     print('Logged in as {0.user}'.format(bot))
+
+    #generate_object_list(bot.guilds)
     
     server = [x for x in bot.guilds if x.name == "UiA-CTF"][0]
 
     channels = [x for x in server.channels if "archive" in str(x.category)]
 
-    for cid, channel in enumerate(channels):
+    for channel in channels:
         channel_messages = await channel.history().flatten()
 
         message_object_list = []
@@ -61,9 +49,17 @@ async def on_ready():
             )
         )
 
-    print(f'Time: {messages_list[0].messages[0].timestamp.strftime("%m/%d/%Y, %H:%M:%S")}')
-    print(f'Author: {messages_list[0].messages[0].author}')
-    print(f'Content: {messages_list[0].messages[0].content}')
+    json_data = generate_json(messages_list)
+
+    with open('json_data.json', 'w', encoding='utf8') as json_file:
+        json.dump(json_data, json_file, ensure_ascii=False)
+
+
+
+    #print(f'Channel: {messages_list[channel_index].channelname}')
+    #print(f'Time: {messages_list[channel_index].messages[message_index].timestamp.strftime("%m/%d/%Y, %H:%M:%S")}')
+    #print(f'Author: {messages_list[channel_index].messages[message_index].author}')
+    #print(f'Content: {messages_list[channel_index].messages[message_index].content}')
     
 
 bot.run(DISCORD_API)
