@@ -1,7 +1,14 @@
 #!/usr/bin/env python3
 
+from itertools import count
 import os
+from ssl import create_default_context
+from unicodedata import name
+from attr import asdict
 import discord
+
+from datetime import date, datetime
+from dataclasses import dataclass
 from discord.ext import commands
 from dotenv import load_dotenv
 
@@ -12,24 +19,51 @@ DISCORD_API = os.environ.get("DISCORD_API")
 bot = commands.Bot(command_prefix='!')
 
 
+@dataclass
+class Message:
+    timestamp: datetime
+    author: str
+    content: str
+
+
+@dataclass
+class Channel:
+    channelname: str
+    messages: list[Message]
+
+
+messages_list = []
+
 @bot.event
 async def on_ready():
     print('Logged in as {0.user}'.format(bot))
-    print("="*100)
+    
+    server = [x for x in bot.guilds if x.name == "UiA-CTF"][0]
 
-    print(bot.guilds)
+    channels = [x for x in server.channels if "archive" in str(x.category)]
 
-    emote_server = bot.guilds[1]
-    print(f'EMOTE SERVER: {emote_server}')
+    for cid, channel in enumerate(channels):
+        channel_messages = await channel.history().flatten()
 
-    print(f'EMOTE CHANNEL: {emote_server}')
+        message_object_list = []
+        for message in channel_messages:
+            message_object_list.append(
+                Message(
+                    timestamp=message.created_at,
+                    author=message.author.name,
+                    content=message.content
+                )
+            )
+        messages_list.append(
+            Channel(
+                channelname=channel.name,
+                messages=message_object_list
+            )
+        )
 
-    test_channels = []
-    for channel in emote_server:
-        if "archive" in channel.name:
-            test_channels.append(channel)
-
-    print(f'TEST CHANNELS: {test_channels}')
-
+    print(f'Time: {messages_list[0].messages[0].timestamp.strftime("%m/%d/%Y, %H:%M:%S")}')
+    print(f'Author: {messages_list[0].messages[0].author}')
+    print(f'Content: {messages_list[0].messages[0].content}')
+    
 
 bot.run(DISCORD_API)
