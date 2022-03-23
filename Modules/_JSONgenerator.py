@@ -8,9 +8,8 @@ def generate_json(messages):
         message_list.clear
         
         for message in channel.messages:
-            message_list.append(
-                f'{{"{message.author}":"{message.content}"}}'
-            )
+            message_dict = {message.author: message.content}
+            message_list.append(message_dict)
         
         if channel.channelname not in json_dict:
             json_dict[channel.channelname] = message_list

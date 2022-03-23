@@ -51,9 +51,8 @@ async def on_ready():
 
     json_data = generate_json(messages_list)
 
-    with open('json_data.json', 'w', encoding='utf8') as json_file:
-        json.dump(json_data, json_file, ensure_ascii=False)
-
+    with open("json_data.json", "w") as file:
+        json.dump(json_data, file, indent=4)
 
 
     #print(f'Channel: {messages_list[channel_index].channelname}')
