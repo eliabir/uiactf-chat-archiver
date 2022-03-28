@@ -3,11 +3,11 @@
 import os
 import codecs
 
-from Modules._Datastructs import Message, Channel, date, datetime
-#from Modules._Objectgenerator import generate_object_list
-from Modules._JSONgenerator import generate_json, json
 from discord.ext import commands
 from dotenv import load_dotenv
+
+from Modules._Datastructs import Message, Channel, date, datetime
+from Modules._JSONgenerator import generate_json, json
 
 load_dotenv()
 
